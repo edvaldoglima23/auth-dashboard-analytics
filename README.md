@@ -1,68 +1,100 @@
-# Webapp Template
+# Dashboard Analítico Corporativo
 
-Template designed to quickly build full stack apps.
+Um sistema web completo para análise de vendas e gestão de produtos, com autenticação e interface moderna.
 
-Utilizes Github Actions and Ansible to build Docker images to quickly deploy onto an AWS EC2 Debian instance.
+## 🚀 Funcionalidades
 
-## Technologies
+- **Autenticação Segura**
+  - Login com JWT
+  - Proteção de rotas
+  - Interface moderna e responsiva
 
-- Containerization: Docker/Docker Compose
+- **Dashboard de Vendas**
+  - Visualização de vendas
+  - Formatação monetária (R$)
+  - Datas no formato brasileiro (dd/mm/aaaa)
 
-- Frontend: React/Next.js
+- **Gestão de Produtos**
+  - Listagem de produtos
+  - Adição de novos produtos
+  - Edição de produtos existentes
+  - Remoção de produtos
 
-- Backend: FastAPI
+## 🛠️ Tecnologias
 
-- Frameworks/Libraries: PDM, TailwindCSS
+### Frontend
+- React
+- CSS Moderno
+- Formatação de dados (moeda e datas)
+- Gerenciamento de estado
 
-## Prerequisites
+### Backend
+- Node.js
+- Express
+- JWT para autenticação
+- SQLite para banco de dados
 
-- Install Ansible
+## 📦 Instalação
 
-- Create a Dockerhub account/repo and fill out the Github repo environmental variables:
-
-  - DOCKERHUB_TOKEN
-  - DOCKERHUB_USERNAME
-  - DOCKERHUB_REPO
-
-- Complete the `config.yaml` and the `inventory.yaml` in the `ansible` directory
-
-  - `github_repo`: Github repo clone address
-  - `deploy_path`: Path where to clone the repo to on the server
-  - `deploy_command`: `Make` command to run to deploy on the server
-
-- Add your domain in HOSTNAME_PROD in the `Makefile`
-
-## Deployment
-
-### Local Deployment
-
-Uses `make` to quickly dispatch `docker-compose` commands.
-
-- `deps`: rebuilds the frontend to deploy statically using the api
-
-- `build`: builds the container using `docker-compose build `
-
-- `up-prd`: ups the container using `docker-compose -f docker-compose.yml up`
-
-- `up-dev`: ups the container using `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up`
-  which will deploy with local volumes.
-
-Ex: `make deps build up-dev`
-
-### Server Deployment
-
-Easy deployment using `make setup deploy` after completing the required config files.
-
-- `setup`: Install dependencies and clone repo onto server
-
-- `deploy`: Deploy on server
-
-To use a SSL certificate, uncomment the volumes under the `traefik` service. Add your own certificates for use in Traefik.
-
-```yaml
-volumes:
-  - "/var/run/docker.sock:/var/run/docker.sock:ro"
-  - "./dynamic_conf.yaml:/etc/traefik/dynamic_conf.yaml"
-  - "/etc/letsencrypt/live/domain/fullchain.pem:/etc/certs/ssl-cert.pem"
-  - "/etc/letsencrypt/live/domain/privkey.pem:/etc/certs/ssl-cert.key"
+1. **Clone o repositório**
+```bash
+git clone [seu-repositorio]
+cd auth-dashboard-analytics
 ```
+
+2. **Backend**
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+3. **Frontend**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## 🔧 Configuração
+
+### Variáveis de Ambiente
+Crie um arquivo `.env` na pasta backend:
+```env
+JWT_SECRET=seu_secret_aqui
+DATABASE_URL=seu_banco_aqui
+```
+
+### Banco de Dados
+O sistema usa SQLite por padrão. As tabelas necessárias são:
+- users
+- products
+- sales
+
+## 👤 Uso
+
+1. Acesse `http://localhost:5173` (ou a porta indicada)
+2. Faça login com suas credenciais
+3. Navegue pelo menu superior:
+   - Dashboard: Visualize vendas
+   - Produtos: Gerencie produtos
+
+## 🤝 Contribuição
+
+1. Faça um Fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## ✨ Próximos Passos
+
+- [ ] Implementar gráficos no dashboard
+- [ ] Adicionar filtros de data
+- [ ] Melhorar responsividade
+- [ ] Adicionar mais relatórios
+- [ ] Implementar testes automatizados
