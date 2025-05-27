@@ -111,8 +111,8 @@
     "isolatedModules": true
   },
   "include": [
-    "src",
-    "src/declaration.d.ts"
+    "frontend/src",
+    "frontend/src/declaration.d.ts"
   ],
   "exclude": [
     "node_modules"

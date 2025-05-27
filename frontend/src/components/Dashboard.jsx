@@ -1,81 +1,110 @@
-import React, { useEffect, useState } from 'react';
-import { getSales, createSale, getMetrics, logout } from '../services/api';
-import Metrics from './Metrics';
-import SaleForm from './SaleForm';
-import SalesList from './SalesList';
+import React, { useState, useEffect } from 'react';
+import { Container, Box, Typography, Paper } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import ptBR from 'date-fns/locale/pt-BR';
+import DashboardKPIs from './DashboardKPIs';
+import DashboardCharts from './DashboardCharts';
+import api from '../services/api';
 
-export default function Dashboard({ onLogout }) {
-  const [sales, setSales] = useState([]);
-  const [metrics, setMetrics] = useState({ totalVendas: 0, valorTotal: 0 });
+export default function Dashboard() {
+  const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)));
+  const [endDate, setEndDate] = useState(new Date());
+  const [metrics, setMetrics] = useState(null);
+  const [salesData, setSalesData] = useState(null);
+  const [categoryData, setCategoryData] = useState(null);
+  const [productTrends, setProductTrends] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const [salesData, metricsData] = await Promise.all([
-      getSales(),
-      getMetrics()
-    ]);
-    setSales(salesData);
-    setMetrics(metricsData);
-    setLoading(false);
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await api.get('/api/dashboard', {
+        params: {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
+        }
+      });
+
+      const { 
+        metrics: metricsData,
+        salesByPeriod,
+        salesByCategory,
+        productTrends: trendsData
+      } = response.data;
+
+      setMetrics(metricsData);
+      setSalesData({
+        labels: salesByPeriod.map(item => new Date(item.date).toLocaleDateString('pt-BR')),
+        values: salesByPeriod.map(item => item.total)
+      });
+      setCategoryData({
+        labels: salesByCategory.map(item => item.category),
+        values: salesByCategory.map(item => item.total)
+      });
+      setProductTrends({
+        labels: trendsData.map(item => item.product),
+        values: trendsData.map(item => item.trend)
+      });
+    } catch (err) {
+      console.error('Erro ao carregar dados do dashboard:', err);
+      setError('Não foi possível carregar os dados do dashboard. Por favor, tente novamente mais tarde.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleAddSale = async (sale) => {
-    await createSale(sale);
-    fetchData();
-  };
-
-  const handleDeleteSale = async (id) => {
-    await fetch(`http://localhost:3001/api/sales/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    });
-    fetchData();
-  };
-
-  const handleLogout = () => {
-    logout();
-    onLogout();
-  };
+    fetchDashboardData();
+  }, [startDate, endDate]);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#f4f6f8',
-    }}>
-      <div className="header" style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 10 }}>
-        <span>Dashboard Corporativo</span>
-        <span style={{ fontSize: 16, fontWeight: 400, marginLeft: 16 }}>Usuário | <button onClick={handleLogout} style={{ background: 'transparent', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Sair</button></span>
-      </div>
-      <div style={{
-        maxWidth: 1000,
-        margin: '90px auto 0 auto',
-        padding: 32,
-        background: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-      }}>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Dashboard
+        </Typography>
+        
+        <Paper sx={{ p: 2, display: 'flex', gap: 2, mb: 3 }}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
+            <DatePicker
+              label="Data Inicial"
+              value={startDate}
+              onChange={(newValue) => setStartDate(newValue)}
+              format="dd/MM/yyyy"
+            />
+            <DatePicker
+              label="Data Final"
+              value={endDate}
+              onChange={(newValue) => setEndDate(newValue)}
+              format="dd/MM/yyyy"
+            />
+          </LocalizationProvider>
+        </Paper>
+
+        {error && (
+          <Paper sx={{ p: 2, mb: 3, bgcolor: 'error.light', color: 'error.contrastText' }}>
+            <Typography>{error}</Typography>
+          </Paper>
+        )}
+
         {loading ? (
-          <div>Carregando...</div>
+          <Typography>Carregando dados...</Typography>
         ) : (
           <>
-            <div style={{ width: '100%' }}>
-              <Metrics totalVendas={metrics.totalVendas} valorTotal={metrics.valorTotal} />
-            </div>
-            <div style={{ width: '100%', marginBottom: 24 }}>
-              <SaleForm onAddSale={handleAddSale} />
-            </div>
-            <div style={{ width: '100%' }}>
-              <SalesList sales={sales} onDeleteSale={handleDeleteSale} />
-            </div>
+            <DashboardKPIs metrics={metrics} />
+            <DashboardCharts
+              salesData={salesData}
+              categoryData={categoryData}
+              productTrends={productTrends}
+            />
           </>
         )}
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 } 
