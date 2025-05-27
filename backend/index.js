@@ -7,6 +7,7 @@ dotenv.config();
 
 const authRoutes = require('./routes/auth');
 const salesRoutes = require('./routes/sales');
+const productsRoutes = require('./routes/products');
 const { authenticateToken } = require('./middlewares/authMiddleware');
 
 const app = express();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/sales', authenticateToken, salesRoutes);
+app.use('/api/products', authenticateToken, productsRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

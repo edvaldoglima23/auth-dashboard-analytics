@@ -87,7 +87,7 @@ export default function SaleForm({ onAddSale }) {
                 style={{
                     minWidth: 120,
                     height: 40,
-                    marginBottom: 12
+                    marginBottom: 0
                 }}
             >
                 {loading ? 'Adicionando...' : 'Adicionar'}
