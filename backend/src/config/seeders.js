@@ -3,23 +3,27 @@ const { User } = require('../models');
 
 async function createDefaultAdmin() {
   try {
-    const adminExists = await User.findOne({
-      where: { email: 'admin@example.com' }
-    });
+    const email = 'admin@example.com';
+    const password = 'Admin@2024!';
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (!adminExists) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
+    let admin = await User.findOne({ where: { email } });
+    if (!admin) {
       await User.create({
-        email: 'admin@example.com',
+        email,
         password: hashedPassword,
         role: 'admin'
       });
       console.log('Usuário admin criado com sucesso!');
     } else {
-      console.log('Usuário admin já existe.');
+      // Atualiza a senha caso já exista
+      admin.password = hashedPassword;
+      admin.role = 'admin';
+      await admin.save();
+      console.log('Senha do usuário admin atualizada com sucesso!');
     }
   } catch (error) {
-    console.error('Erro ao criar usuário admin:', error);
+    console.error('Erro ao criar/atualizar usuário admin:', error);
   }
 }
 

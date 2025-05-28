@@ -1,6 +1,6 @@
 # Dashboard Analítico Corporativo
 
-Um sistema web completo para análise de vendas e gestão de produtos, com autenticação e interface moderna.
+Um sistema web completo para análise de vendas e gestão de produtos, com autenticação JWT, dashboard analítico, exportação de relatórios e interface moderna.
 
 ## 🚀 Funcionalidades
 
@@ -10,28 +10,41 @@ Um sistema web completo para análise de vendas e gestão de produtos, com auten
   - Interface moderna e responsiva
 
 - **Dashboard de Vendas**
-  - Visualização de vendas
+  - Visualização de vendas com gráficos (Chart.js)
+  - KPIs: vendas totais, média, produto mais vendido, total de produtos
+  - Gráficos de vendas por período, categoria e tendência por produto
+  - Exportação de relatórios em Excel e PDF
+  - Filtros por data
   - Formatação monetária (R$)
   - Datas no formato brasileiro (dd/mm/aaaa)
 
 - **Gestão de Produtos**
   - Listagem de produtos
-  - Adição de novos produtos
-  - Edição de produtos existentes
-  - Remoção de produtos
+  - Adição, edição e remoção de produtos
+  - Controle de estoque
+
+- **Gestão de Vendas**
+  - Registro de novas vendas
+  - Histórico de vendas
+  - Cancelamento de vendas
+  - Atualização automática do estoque
 
 ## 🛠️ Tecnologias
 
 ### Frontend
-- React
+- React (Vite)
+- Chart.js & react-chartjs-2
+- Material-UI (MUI)
+- date-fns
+- jsPDF, xlsx (exportação)
+- Axios
 - CSS Moderno
-- Formatação de dados (moeda e datas)
-- Gerenciamento de estado
 
 ### Backend
 - Node.js
 - Express
 - JWT para autenticação
+- Sequelize ORM
 - SQLite para banco de dados
 
 ## 📦 Instalação
@@ -48,6 +61,15 @@ cd backend
 npm install
 npm run dev
 ```
+Se aparecer erro de porta ocupada, rode:
+```bash
+sudo kill -9 $(sudo lsof -t -i:3001) || true
+```
+Se mudar os modelos, apague o banco para resetar:
+```bash
+rm database.sqlite
+npm run dev
+```
 
 3. **Frontend**
 ```bash
@@ -62,29 +84,37 @@ npm run dev
 Crie um arquivo `.env` na pasta backend:
 ```env
 JWT_SECRET=seu_secret_aqui
-DATABASE_URL=seu_banco_aqui
 ```
 
 ### Banco de Dados
-O sistema usa SQLite por padrão. As tabelas necessárias são:
-- users
-- products
-- sales
+O sistema usa SQLite por padrão. As tabelas são criadas automaticamente.
 
 ## 👤 Uso
 
-1. Acesse `http://localhost:5173` (ou a porta indicada)
-2. Faça login com suas credenciais
+1. Acesse `http://localhost:5174` (ou a porta indicada)
+2. Faça login com:
+   - **Email:** admin@example.com
+   - **Senha:** admin123
 3. Navegue pelo menu superior:
-   - Dashboard: Visualize vendas
+   - Dashboard: Visualize vendas e gráficos
    - Produtos: Gerencie produtos
+   - Vendas: Registre e acompanhe vendas
+
+## 📝 Problemas Comuns
+
+- **Porta 3001 ocupada:**
+  - Rode `sudo kill -9 $(sudo lsof -t -i:3001) || true` antes de iniciar o backend.
+- **Banco de dados desatualizado:**
+  - Apague `database.sqlite` e rode `npm run dev` para recriar.
+- **Login volta para tela inicial:**
+  - Verifique se o backend está rodando e se o token está salvo no localStorage.
 
 ## 🤝 Contribuição
 
 1. Faça um Fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
+2. Crie uma branch para sua feature (`git checkout -b feature/NovaFeature`)
+3. Commit suas mudanças (`git commit -m 'Add NovaFeature'`)
+4. Push para a branch (`git push origin feature/NovaFeature`)
 5. Abra um Pull Request
 
 ## 📝 Licença
@@ -93,8 +123,10 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## ✨ Próximos Passos
 
-- [ ] Implementar gráficos no dashboard
-- [ ] Adicionar filtros de data
+- [x] Dashboard com gráficos
+- [x] Exportação de relatórios (Excel/PDF)
+- [x] Filtros de data
+- [x] Melhorias de autenticação
 - [ ] Melhorar responsividade
 - [ ] Adicionar mais relatórios
 - [ ] Implementar testes automatizados
